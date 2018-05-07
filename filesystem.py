@@ -50,7 +50,7 @@ class Node:
         print(tabspace(indent + 1) + "type   : " + self.type)
         print(tabspace(indent + 1) + "path   : " + self.path)
         if self.parent is not None:
-            print(tabspace(indent + 1) + "parent : " + self.parent.name)
+            print(tabspace(indent + 1) + "parent : " + self.parent.name + " (Node)")
         else:
             print(tabspace(indent + 1) + "parent : " + "None")
         if len(self.children) != 0:
