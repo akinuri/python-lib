@@ -10,5 +10,3 @@ def space(count):
 def tabspace(count):
     return str_repeat("    ", count)
 
-
-

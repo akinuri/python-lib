@@ -24,24 +24,25 @@ def path_pop(path, count=0, dirname=False, filename=False):
 
 class Node:
     
-    def __init__(self, path, parent=None):
+    def __init__(self, path, exclude=None, parent=None):
         self.path     = path
         self.parent   = parent
         self.children = []
         if os.path.isdir(path):
             self.type = "Folder"
             self.name = path_pop(path, 0, True)
-            self.walk()
+            self.walk(exclude)
         elif os.path.isfile(path):
             self.type = "File"
             self.name = path_pop(path, 0, True, True)
     
-    def walk(self):
+    def walk(self, exclude):
         items = os.listdir(self.path)
         if len(items) != 0:
             for item in items:
-                child = Node(self.path + "\\" + item, self)
-                self.children.append(child)
+                if exclude is not None and item != exclude:
+                    child = Node(self.path + "\\" + item, exclude, self)
+                    self.children.append(child)
     
     def debug(self, indent=0):
         print(tabspace(indent) + "[")
