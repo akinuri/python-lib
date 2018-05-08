@@ -22,6 +22,11 @@ def path_pop(path, count=0, dirname=False, filename=False):
     return None
 
 
+# Node() dependencies:
+#    path_pop()
+#    str_pad_right()
+#    tabspace()
+
 class Node:
     
     def __init__(self, path, exclude=None, parent=None):
@@ -45,16 +50,20 @@ class Node:
                     self.children.append(child)
     
     def debug(self, indent=0):
+        field_str_length = 7
+        children_count = len(self.children)
+        if children_count > 0:
+            field_str_length = 9
         print(tabspace(indent) + "[")
-        print(tabspace(indent + 1) + "name   : " + self.name)
-        print(tabspace(indent + 1) + "type   : " + self.type)
-        print(tabspace(indent + 1) + "path   : " + self.path)
+        print(tabspace(indent + 1) + str_pad_right("name", field_str_length, " ") + ": " + self.name)
+        print(tabspace(indent + 1) + str_pad_right("type", field_str_length, " ") + ": " + self.type)
+        print(tabspace(indent + 1) + str_pad_right("path", field_str_length, " ") + ": " + self.path)
         if self.parent is not None:
-            print(tabspace(indent + 1) + "parent : " + self.parent.name + " (Node)")
+            print(tabspace(indent + 1) + str_pad_right("parent", field_str_length, " ") + ": " + self.parent.name + " (Node)")
         else:
-            print(tabspace(indent + 1) + "parent : " + "None")
+            print(tabspace(indent + 1) + str_pad_right("parent", field_str_length, " ") + ": " + "None")
         if len(self.children) != 0:
-            print(tabspace(indent + 1) + "children: [")
+            print(tabspace(indent + 1) + str_pad_right("children", field_str_length, " ") + ": [")
             if len(self.children) != 0:
                 for item in self.children:
                     item.debug(indent + 2)
