@@ -14,12 +14,21 @@ def tabspace(count):
     return str_repeat("    ", count)
 
 
-def str_pad_right(str, length, pad_char):
-    str_len = len(str)
+def str_pad_left(s, length, pad_char):
+    s = str(s)
+    str_len = len(s)
     if length > str_len:
         diff = length - str_len
-        str += pad_char * diff
-    return str
+        s = (pad_char * diff) + s
+    return s
+
+def str_pad_right(s, length, pad_char):
+    s = str(s)
+    str_len = len(s)
+    if length > str_len:
+        diff = length - str_len
+        s += pad_char * diff
+    return s
 
 
 def str_quote(str):

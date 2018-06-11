@@ -1,6 +1,6 @@
 import glob, os, sys
 
-os.system("title " + "Deleting .DS_Store files")
+os.system("title " + "Deleting Thumbs.db files")
 
 # ========================= FOLDER DROP
 
@@ -24,15 +24,12 @@ i = 0
     
 for root, dirs, files in os.walk(input_path):
     for file in files:
-        if file.endswith('.DS_Store'):
+        if file == "Thumbs.db":
             path = os.path.join(root, file)
-            print("Deleting: " + path)
-            if os.remove(path):
-                print("Unable to delete!")
-            else:
-                i += 1
-                print("Deleted.\n")
+            os.remove(path)
+            print(path)
+            i += 1
 
-print("Files Deleted: " + str(i))
+print("\nFiles Deleted: " + str(i))
 
-input()
+input("\nPress Enter key to exit...")
