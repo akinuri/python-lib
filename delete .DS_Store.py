@@ -14,7 +14,7 @@ else:
     sys.exit()
 
 if not os.path.isdir(input_path):
-    print("You must ender a folder.")
+    print("You must enter a folder.")
     input()
     sys.exit()
 
@@ -30,6 +30,6 @@ for root, dirs, files in os.walk(input_path):
             print(path)
             i += 1
 
-print("\nFiles Deleted: " + str(i))
+print("Files Deleted: " + str(i))
 
 input("\nPress Enter key to exit...")

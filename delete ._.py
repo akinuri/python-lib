@@ -30,6 +30,6 @@ for root, dirs, files in os.walk(input_path):
             print(path)
             i += 1
 
-print("\nFiles Deleted: " + str(i))
+print("Files Deleted: " + str(i))
 
 input("\nPress Enter key to exit...")

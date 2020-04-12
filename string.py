@@ -2,7 +2,7 @@ def str_repeat(str, count):
     return str * count
 
 
-def tab(count):
+def tab(count, tab="\t"):
     return str_repeat("\t", count)
 
 
