@@ -71,10 +71,10 @@ class CSSMerger:
             input("\nPress Enter key to exit...")
             sys.exit()
         
-        if len(cls.input_files) == 1:
-            print("[Error] Insufficient input. There needs to be more than one file to merge.")
-            input("\nPress Enter key to exit...")
-            sys.exit()
+        # if len(cls.input_files) == 1:
+            # print("[Error] Insufficient input. There needs to be more than one file to merge.")
+            # input("\nPress Enter key to exit...")
+            # sys.exit()
         
         cls.output_file = cls.input_dir + "\\" + cls.input_folder + ".css"
     
