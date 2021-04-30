@@ -2,23 +2,27 @@ import glob, os, sys
 
 os.system("title " + "Deleting Thumbs.db files")
 
-# ========================= FOLDER DROP
+
+#region ==================== INPUT
 
 input_path = None
 
 if len(sys.argv) > 1:
     input_path = sys.argv[1]
 else:
-    print("Drop a folder on me.")
+    print("Drop a folder on this file.")
     input()
     sys.exit()
 
 if not os.path.isdir(input_path):
-    print("You must enter a folder.")
+    print("You must drop a folder, nothing else.")
     input()
     sys.exit()
 
-# ========================= DELETE
+#endregion
+
+
+#region ==================== DELETE
 
 i = 0
     
@@ -30,6 +34,9 @@ for root, dirs, files in os.walk(input_path):
             print(path)
             i += 1
 
-print("Files Deleted: " + str(i))
+print("Files deleted: " + str(i))
+
+#endregion
+
 
 input("\nPress Enter key to exit...")
