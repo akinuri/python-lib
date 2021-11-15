@@ -140,6 +140,8 @@ for line in lines:
         analysis[line[0]] = list()
     analysis[line[0]].append(line[1])
 
+analysis_json = json.dumps(analysis, indent=4, sort_keys=True)
+
 print_op("SUCCESS", before_delay=0.5)
 
 # pprint(lines)
@@ -155,7 +157,7 @@ print_op("Writing the analysis to file", pad=True, end="", before_delay=0.5)
 analysis_filename = "analysis-output.json"
 analysis_filepath = root_dir_path +"\\" + analysis_filename
 analysis_file = open(analysis_filepath, "w")
-analysis_file.write(json.dumps(analysis, indent=4, sort_keys=True))
+analysis_file.write(analysis_json)
 analysis_file.close()
 
 print_op("SUCCESS", before_delay=0.5)
@@ -203,6 +205,12 @@ for action, file_paths in analysis.items():
             dest_file_path   = os.path.join(change_dir_path, file_path)
             shutil.copy(source_file_path, dest_file_path)
 
+change_filename = "change.log.json"
+change_filepath = change_dir_path +"\\" + change_filename
+change_file = open(change_filepath, "w")
+change_file.write(analysis_json)
+change_file.close()
+
 print_op("SUCCESS", before_delay=0.5)
 
 #endregion
@@ -219,7 +227,8 @@ subprocess.run(
     [
         "zip",
         "-r",
-        "../" + git_dir_name + ".zip",
+        # "../" + git_dir_name + ".zip",
+        "../" + "changes" + ".zip",
         "*"
     ],
 )

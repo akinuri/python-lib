@@ -1,0 +1,3 @@
+M	application/controllers/backend/manufacturing/RecipesController.php
+M	application/views/backend/manufacturing/recipes/create_edit/cards/identity.php
+M	assets/js/backend/common.js
