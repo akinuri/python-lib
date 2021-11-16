@@ -47,5 +47,3 @@ git ls-files --modified
 Lists untracked files:
 
 git ls-files --others --exclude-standard
-
-
