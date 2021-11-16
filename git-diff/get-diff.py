@@ -111,15 +111,15 @@ print_op("SUCCESS", before_delay=0.5)
 
 #region ==================== DIFF OUTPUT
 
-print_op("Writing the diff to file", pad=True, end="", before_delay=0.5)
+# print_op("Writing the diff to file", pad=True, end="", before_delay=0.5)
 
-diff_filename = "diff-output.txt"
-diff_filepath = root_dir_path +"\\" + diff_filename
-diff_file = open(diff_filepath, "w")
-diff_file.write(diff_text)
-diff_file.close()
+# diff_filename = "diff-output.txt"
+# diff_filepath = root_dir_path +"\\" + diff_filename
+# diff_file = open(diff_filepath, "w")
+# diff_file.write(diff_text)
+# diff_file.close()
 
-print_op("SUCCESS", before_delay=0.5)
+# print_op("SUCCESS", before_delay=0.5)
 
 # print(diff_text)
 
@@ -152,15 +152,15 @@ print_op("SUCCESS", before_delay=0.5)
 
 #region ==================== ANALYSIS OUTPUT
 
-print_op("Writing the analysis to file", pad=True, end="", before_delay=0.5)
+# print_op("Writing the analysis to file", pad=True, end="", before_delay=0.5)
 
-analysis_filename = "analysis-output.json"
-analysis_filepath = root_dir_path +"\\" + analysis_filename
-analysis_file = open(analysis_filepath, "w")
-analysis_file.write(analysis_json)
-analysis_file.close()
+# analysis_filename = "analysis-output.json"
+# analysis_filepath = root_dir_path +"\\" + analysis_filename
+# analysis_file = open(analysis_filepath, "w")
+# analysis_file.write(analysis_json)
+# analysis_file.close()
 
-print_op("SUCCESS", before_delay=0.5)
+# print_op("SUCCESS", before_delay=0.5)
 
 #endregion
 
