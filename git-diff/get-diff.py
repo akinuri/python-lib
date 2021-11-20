@@ -97,7 +97,7 @@ result = subprocess.run(
         "git",
         "diff",
         "--name-status",
-        "HEAD~1"
+        "HEAD~..HEAD"
     ],
     capture_output=True
 )
