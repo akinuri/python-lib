@@ -9,236 +9,211 @@ from pprint import pprint
 
 os.system("title " + "Getting the changes of the last commit")
 
-
-#region ==================== OPERATION
-
-OP_LINE_LENGTH = 31
-OP_LINE_PAD_CHAR = "."
-OP_IGNORE_DELAYS = False
-OP_DELAY_MULTIPLIER = 0.5
-
-def print_op(text="", pad=False, end="\n", before_delay=0, after_delay=0, pause=None):
-    ignore_delays = "OP_IGNORE_DELAYS" in globals() and OP_IGNORE_DELAYS is True
-    delay_multiplier = 1
-    if "OP_DELAY_MULTIPLIER" in globals():
-        delay_multiplier = OP_DELAY_MULTIPLIER
-    if before_delay != 0 and not ignore_delays:
-        time.sleep(before_delay * delay_multiplier)
-    if text != "":
-        if pad is True:
-            line_length = len(text)
-            if "OP_LINE_LENGTH" in globals():
-                line_length = OP_LINE_LENGTH
-            pad_char = " "
-            if "OP_LINE_PAD_CHAR" in globals():
-                pad_char = OP_LINE_PAD_CHAR
-            text = text.ljust(line_length, pad_char)
-        print(text, end=end)
-        if end == "":
-            sys.stdout.flush()
-    if after_delay != 0 and not ignore_delays:
-        time.sleep(after_delay * delay_multiplier)
-    if pause == True or type(pause) is str:
-        if pause is True:
-            pause = ""
-        input(pause)
-
-#endregion
+EXIT_MSG = "Program will close.\n"
 
 
-#region ==================== ARGUMENT
-
-print_op("Checking arguments", pad=True, end="", before_delay=0.5)
+#region ==================== INPUT
 
 if len(sys.argv) == 1:
-    print_op("FAIL", before_delay=0.5, after_delay=0.5)
     print("First argument (input directory path) is missing.")
-    input("")
+    input(EXIT_MSG)
     sys.exit()
 
 if not os.path.isdir(sys.argv[1]):
-    print_op("FAIL", before_delay=0.5, after_delay=0.5)
     print("First argument needs to be a directory path.")
-    input("")
+    input(EXIT_MSG)
     sys.exit()
-
-print_op("SUCCESS", before_delay=0.5)
 
 #endregion
 
 
 #region ==================== VARS
 
-print_op("Creating variables", pad=True, end="", before_delay=0.5)
-
 git_dir_path  = sys.argv[1]
 git_dir_name  = os.path.basename(git_dir_path)
 root_dir_path = os.path.dirname(os.path.realpath(__file__))
 
-print_op("SUCCESS", before_delay=0.5)
+git_commit_depth = 1
+git_commit_depth_input = input("Enter the git commit depth: ")
+
+try:
+    git_commit_depth = int(git_commit_depth_input)
+except:
+    print(git_commit_depth_input + " is not a valid number.")
+    input(EXIT_MSG)
+    sys.exit()
+
+if git_commit_depth > 20:
+    print(str(git_commit_depth) + " seems too great to be a valid commit depth.")
+    input(EXIT_MSG)
+    sys.exit()
 
 #endregion
 
 
-# print(sys.argv)
-# print(root_dir_path)
-# print(output_filename)
-# print(output_path)
-# input("")
+#region ==================== PRODUCTION IGNORE LIST
+
+git_prod_ignore_file_name = ".prodignore.txt"
+git_prod_ignore_list      = []
+
+os.chdir(git_dir_path)
+
+if os.path.isfile(git_prod_ignore_file_name):
+    with open(git_prod_ignore_file_name) as file:
+        lines = file.readlines()
+        git_prod_ignore_list = [line.strip() for line in lines]
+
+#endregion
 
 
 #region ==================== GET DIFF
 
-print_op("Getting git diff", pad=True, end="", before_delay=0.5)
-
 os.chdir(git_dir_path)
-result = subprocess.run(
-    [
-        "git",
-        "diff",
-        "--name-status",
-        "HEAD~..HEAD"
-    ],
+process_args = [
+    "git",
+    "diff",
+    "--name-status",
+    "HEAD~" + str(git_commit_depth),
+    "HEAD"
+]
+process_result = subprocess.run(
+    process_args,
     capture_output=True
 )
-diff_text = result.stdout.decode()
+process_output = process_result.stdout.decode()
 os.chdir(root_dir_path)
 
-print_op("SUCCESS", before_delay=0.5)
-
 #endregion
 
 
-#region ==================== DIFF OUTPUT
+#region ==================== ANALYZE
 
-# print_op("Writing the diff to file", pad=True, end="", before_delay=0.5)
+analysis = {}
 
-# diff_filename = "diff-output.txt"
-# diff_filepath = root_dir_path +"\\" + diff_filename
-# diff_file = open(diff_filepath, "w")
-# diff_file.write(diff_text)
-# diff_file.close()
+process_output_lines = process_output.splitlines()
+process_output_lines = [line.split("\t") for line in process_output_lines]
 
-# print_op("SUCCESS", before_delay=0.5)
-
-# print(diff_text)
-
-#endregion
-
-
-#region ==================== ANALYSIS
-
-print_op("Analyzing the diff", pad=True, end="", before_delay=0.5)
-
-analysis = dict()
-
-lines = diff_text.splitlines()
-lines = [line.split("\t") for line in lines]
-
-for line in lines:
-    if line[0] not in analysis:
-        analysis[line[0]] = list()
-    analysis[line[0]].append(line[1])
+for line in process_output_lines:
+    mode, file_path, new_file_path = line + [None] * (3 - len(line))
+    score = None
+    
+    is_file_ignored = False
+    for ignore_filter in git_prod_ignore_list:
+        target_file = file_path
+        if new_file_path is not None:
+            target_file = new_file_path
+        if target_file.startswith(ignore_filter):
+            is_file_ignored = True
+            break
+    if is_file_ignored:
+        continue
+        
+    if len(mode) != 1:
+        score = mode[1:]
+        mode = mode[0]
+    if mode not in analysis:
+        if mode == "R":
+            analysis[mode] = {}
+        else:
+            analysis[mode] = []
+    if mode == "R":
+        analysis[mode][file_path] = new_file_path
+        if "A" not in analysis:
+            analysis["A"] = []
+        analysis["A"].append(new_file_path)
+    else:
+        analysis[mode].append(file_path)
 
 analysis_json = json.dumps(analysis, indent=4, sort_keys=True)
 
-print_op("SUCCESS", before_delay=0.5)
-
-# pprint(lines)
-# pprint(analysis)
-
 #endregion
 
 
-#region ==================== ANALYSIS OUTPUT
+#region ==================== DUMP
 
-# print_op("Writing the analysis to file", pad=True, end="", before_delay=0.5)
+desktop_path         = os.path.join(os.path.expanduser('~'), "Desktop")
+dump_dir_path        = os.path.join(desktop_path, git_dir_name)
+dump_archive_name    = git_dir_name + ".zip"
+dump_archive_path    = os.path.join(desktop_path, dump_archive_name)
+delete_previous_dump = None
+dump_log_file_name   = "dump.log.json"
+dump_log_file_path   = os.path.join(dump_dir_path, dump_log_file_name)
 
-# analysis_filename = "analysis-output.json"
-# analysis_filepath = root_dir_path +"\\" + analysis_filename
-# analysis_file = open(analysis_filepath, "w")
-# analysis_file.write(analysis_json)
-# analysis_file.close()
-
-# print_op("SUCCESS", before_delay=0.5)
-
-#endregion
-
-
-#region ==================== CHANGE FILES
-
-print_op("Dumping changes", pad=True, end="", before_delay=0.5)
-
-desktop_path = os.path.join(os.path.expanduser('~'), "Desktop")
-change_dir_path = os.path.join(desktop_path, git_dir_name)
-
-intervened = False
-
-if os.path.isdir(change_dir_path):
-    intervened = True
-    print_op("PAUSED", before_delay=0.5)
-    print("\nThere is already a folder named \""+ git_dir_name +"\" in the desktop.")
-    answer = input("Delete it? (Type 0 for no, 1 for yes): ")
-    if answer == "0":
-        print_op("\nExiting the program.", before_delay=0.5, after_delay=1)
+if os.path.isdir(dump_dir_path):
+    print("There is already a folder named \""+ git_dir_name +"\" in the desktop.")
+    delete_previous_dump = input("Delete it? (Type 0 for no, 1 for yes): ")
+    if delete_previous_dump == "0":
+        input(EXIT_MSG)
         sys.exit()
-    elif answer == "1":
+    elif delete_previous_dump == "1":
         try:
-            shutil.rmtree(change_dir_path)
+            shutil.rmtree(dump_dir_path)
         except OSError as e:
-            print("\n\nError: %s - %s." % (e.filename, e.strerror))
+            print("Error: %s - %s." % (e.filename, e.strerror))
+            input(EXIT_MSG)
+            sys.exit()
+    else:
+        print(delete_previous_dump + " is not a valid answer.")
+        input(EXIT_MSG)
+        sys.exit()
 
-os.mkdir(change_dir_path)
+if (os.path.isfile(dump_archive_path)):
+    if delete_previous_dump is None:
+        print("There is already an achive named \""+ dump_archive_name +"\" in the desktop.")
+        delete_previous_dump = input("Delete it? (Type 0 for no, 1 for yes): ")
+    if delete_previous_dump == "0":
+        input(EXIT_MSG)
+        sys.exit()
+    elif delete_previous_dump == "1":
+        try:
+            os.remove(dump_archive_path)
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+            input(EXIT_MSG)
+            sys.exit()
+    else:
+        print(delete_previous_dump + " is not a valid answer.")
+        input(EXIT_MSG)
+        sys.exit()
 
-if intervened:
-    print("")
-    print_op("Dumping changes", pad=True, end="", before_delay=0.5)
+os.mkdir(dump_dir_path)
 
 for action, file_paths in analysis.items():
     if action == "M" or action == "A":
         for file_path in file_paths:
-            file_dir_path = os.path.join(change_dir_path, os.path.dirname(file_path))
-            # print(file_dir_path)
+            file_dir_path = os.path.join(dump_dir_path, os.path.dirname(file_path))
             if not os.path.isdir(file_dir_path):
                 os.makedirs(file_dir_path)
             source_file_path = os.path.join(git_dir_path, file_path)
-            dest_file_path   = os.path.join(change_dir_path, file_path)
+            dest_file_path   = os.path.join(dump_dir_path, file_path)
             shutil.copy(source_file_path, dest_file_path)
 
-change_filename = "change.log.json"
-change_filepath = change_dir_path +"\\" + change_filename
-change_file = open(change_filepath, "w")
-change_file.write(analysis_json)
-change_file.close()
-
-print_op("SUCCESS", before_delay=0.5)
+dump_file = open(dump_log_file_path, "w")
+dump_file.write(analysis_json)
+dump_file.close()
 
 #endregion
 
 
-#region ==================== ZIP CHANGE FILES
+#region ==================== ARCHIVE
 
-print_op("Archiving changes", pad=True, end="", before_delay=0.5)
-
-os.chdir(change_dir_path)
-print("")
-print("")
+os.chdir(dump_dir_path)
 subprocess.run(
     [
         "zip",
         "-r",
-        # "../" + git_dir_name + ".zip",
-        "../" + "changes" + ".zip",
+        dump_archive_path,
         "*"
     ],
+    stdout=subprocess.DEVNULL
 )
 os.chdir(root_dir_path)
-
-print("")
-print_op("Archiving changes", pad=True, end="", before_delay=0.5)
-print_op("SUCCESS", before_delay=0.5)
+# os.rename(dump_archive_path, os.path.join(desktop_path, "changes.zip"))
 
 #endregion
 
 
-print_op("\nALL DONE", before_delay=0.5, pause="")
+print("ALL DONE")
+
+input(EXIT_MSG)
+sys.exit()
