@@ -53,7 +53,7 @@ if git_commit_depth > 20:
 
 #region ==================== PRODUCTION IGNORE LIST
 
-git_prod_ignore_file_name = ".prodignore.txt"
+git_prod_ignore_file_name = ".prodignore"
 git_prod_ignore_list      = []
 
 os.chdir(git_dir_path)
