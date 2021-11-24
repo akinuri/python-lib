@@ -33,20 +33,54 @@ git_dir_path  = sys.argv[1]
 git_dir_name  = os.path.basename(git_dir_path)
 root_dir_path = os.path.dirname(os.path.realpath(__file__))
 
-git_commit_depth = 1
-git_commit_depth_input = input("Enter the git commit depth: ")
+#endregion
+
+
+#region ==================== USER CHOICES
+
+GIT_DIFF_UNCOMMITED = 1
+GIT_DIFF_STAGED = 2
+GIT_DIFF_COMMITED = 3
+
+print("\n".join([
+    "What type of diff do you want?",
+    "1. Uncommited",
+    "2. Staged",
+    "3. Commited",
+]))
+
+git_diff_choice       = 3
+git_diff_choice_input = input("Your choice: ")
 
 try:
-    git_commit_depth = int(git_commit_depth_input)
+    git_diff_choice = int(git_diff_choice_input)
 except:
-    print(git_commit_depth_input + " is not a valid number.")
+    print(git_diff_choice_input + " is not a valid number.")
     input(EXIT_MSG)
     sys.exit()
 
-if git_commit_depth > 20:
-    print(str(git_commit_depth) + " seems too great to be a valid commit depth.")
+if git_diff_choice not in [GIT_DIFF_UNCOMMITED, GIT_DIFF_STAGED, GIT_DIFF_COMMITED]:
+    print(git_diff_choice_input + " is not a valid choice.")
     input(EXIT_MSG)
     sys.exit()
+
+git_commit_depth = 1
+
+if git_diff_choice == GIT_DIFF_COMMITED:
+    
+    git_commit_depth_input = input("Enter the git commit depth: ")
+    
+    try:
+        git_commit_depth = int(git_commit_depth_input)
+    except:
+        print(git_commit_depth_input + " is not a valid number.")
+        input(EXIT_MSG)
+        sys.exit()
+    
+    if git_commit_depth < 1 or git_commit_depth > 30:
+        print(str(git_commit_depth) + " seems to exceed the valid commit range.")
+        input(EXIT_MSG)
+        sys.exit()
 
 #endregion
 
@@ -68,14 +102,24 @@ if os.path.isfile(git_prod_ignore_file_name):
 
 #region ==================== GET DIFF
 
-os.chdir(git_dir_path)
+git_diff_uncommited = []
+git_diff_staged     = ["--staged"]
+git_diff_commited   = [
+    "HEAD~" + str(git_commit_depth),
+    "HEAD"
+]
 process_args = [
     "git",
     "diff",
     "--name-status",
-    "HEAD~" + str(git_commit_depth),
-    "HEAD"
 ]
+
+if git_diff_choice == GIT_DIFF_STAGED:
+    process_args += git_diff_staged
+elif git_diff_choice == GIT_DIFF_COMMITED:
+    process_args += git_diff_commited
+
+os.chdir(git_dir_path)
 process_result = subprocess.run(
     process_args,
     capture_output=True
@@ -140,8 +184,13 @@ dump_log_file_name   = "dump.log.json"
 dump_log_file_path   = os.path.join(dump_dir_path, dump_log_file_name)
 
 if os.path.isdir(dump_dir_path):
-    print("There is already a folder named \""+ git_dir_name +"\" in the desktop.")
-    delete_previous_dump = input("Delete it? (Type 0 for no, 1 for yes): ")
+    print("\n".join([
+        "There is already a folder named \""+ git_dir_name +"\" in the desktop.",
+        "What do you want to do?",
+        "0. Nothing (exit)",
+        "1. Delete it (continue)",
+    ]))
+    delete_previous_dump = input("Your choice: ")
     if delete_previous_dump == "0":
         input(EXIT_MSG)
         sys.exit()
