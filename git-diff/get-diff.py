@@ -249,7 +249,7 @@ dump_file.close()
 os.chdir(dump_dir_path)
 subprocess.run(
     [
-        "zip",
+        root_dir_path + "\zip",
         "-r",
         dump_archive_path,
         "*"
