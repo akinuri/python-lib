@@ -3,7 +3,7 @@ import subprocess
 from pprint import pprint
 
 
-os.system("title " + "Merge Laracast Video & Audio")
+os.system("title " + "Merge Laracast Video and Audio")
 
 if len(sys.argv) != 3:
     input("Drop two files (a video and an audio file) on this python script.")
