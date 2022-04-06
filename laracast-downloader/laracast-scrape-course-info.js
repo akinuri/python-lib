@@ -31,7 +31,7 @@ function getTitle() {
 }
 
 function getDescription() {
-    return qs(".series-banner:nth-child(3) h1 + a + div").innerText ?? null;
+    return qs(".series-banner:nth-child(3) h1 + :is(a, span) + div").innerText ?? null;
 }
 
 function getSkill() {
@@ -58,11 +58,19 @@ function getContents() {
     let chapters = [];
     let chapterEls = qsa(".episode-list > li");
     chapterEls.forEach(chapterEl => {
+        let chapterHeader = qs("header", chapterEl);
         let chapter = {
-            no     : qs("header span:first-child", chapterEl).innerText.match(/\d+/)[0] ?? null,
-            title  : qs("header span:last-child", chapterEl).innerText ?? null,
+            no     : "",
+            title  : "",
             videos : [],
         };
+        if (chapterHeader) {
+            chapter = {
+                no     : qs("header span:first-child", chapterEl).innerText.match(/\d+/)[0] ?? null,
+                title  : qs("header span:last-child", chapterEl).innerText ?? null,
+                videos : [],
+            };
+        }
         if (chapter.no) {
             chapter.no = chapter.no.padStart(2, "0");
         }
