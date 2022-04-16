@@ -27,11 +27,11 @@ const qsa = (s, b = null) => (b ?? document).querySelectorAll(s);
 // #region ==================== FUNCTIONS: GETTERS
 
 function getTitle() {
-    return qs(".series-banner:nth-child(3) h1").innerText ?? null;
+    return qs(".series-banner:nth-child(3) h1")?.innerText ?? null;
 }
 
 function getDescription() {
-    return qs(".series-banner:nth-child(3) h1 + :is(a, span) + div").innerText ?? null;
+    return qs(".series-banner:nth-child(3) .generic-content")?.innerText ?? null;
 }
 
 function getSkill() {
