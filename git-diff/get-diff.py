@@ -77,7 +77,7 @@ if git_diff_choice == GIT_DIFF_COMMITED:
         input(EXIT_MSG)
         sys.exit()
     
-    if git_commit_depth < 1 or git_commit_depth > 30:
+    if git_commit_depth < 1 or git_commit_depth > 50:
         print(str(git_commit_depth) + " seems to exceed the valid commit range.")
         input(EXIT_MSG)
         sys.exit()
@@ -87,15 +87,15 @@ if git_diff_choice == GIT_DIFF_COMMITED:
 
 #region ==================== PRODUCTION IGNORE LIST
 
-git_prod_ignore_file_name = ".prodignore"
-git_prod_ignore_list      = []
+git_diff_ignore_file_name = ".diffignore"
+git_diff_ignore_list      = []
 
 os.chdir(git_dir_path)
 
-if os.path.isfile(git_prod_ignore_file_name):
-    with open(git_prod_ignore_file_name) as file:
+if os.path.isfile(git_diff_ignore_file_name):
+    with open(git_diff_ignore_file_name) as file:
         lines = file.readlines()
-        git_prod_ignore_list = [line.strip() for line in lines]
+        git_diff_ignore_list = [line.strip() for line in lines]
 
 #endregion
 
@@ -142,7 +142,7 @@ for line in process_output_lines:
     score = None
     
     is_file_ignored = False
-    for ignore_filter in git_prod_ignore_list:
+    for ignore_filter in git_diff_ignore_list:
         target_file = file_path
         if new_file_path is not None:
             target_file = new_file_path
