@@ -113,6 +113,12 @@ process_args = [
     "diff",
     "--name-status",
 ]
+git_untracked_files_args = [
+    "git",
+    "ls-files",
+    "--others",
+    "--exclude-standard",
+]
 
 if git_diff_choice == GIT_DIFF_STAGED:
     process_args += git_diff_staged
@@ -125,6 +131,18 @@ process_result = subprocess.run(
     capture_output=True
 )
 process_output = process_result.stdout.decode()
+
+if git_diff_choice == GIT_DIFF_UNCOMMITED:
+    untracked_process_result = subprocess.run(
+        git_untracked_files_args,
+        capture_output=True
+    )
+    untracked_process_output = untracked_process_result.stdout.decode()
+    untracked_process_output_lines = untracked_process_output.splitlines()
+    untracked_process_output_lines = ["U\t" + line for line in untracked_process_output_lines]
+    untracked_process_output = "\n".join(untracked_process_output_lines)
+    process_output = process_output + untracked_process_output
+
 os.chdir(root_dir_path)
 
 #endregion
@@ -228,7 +246,7 @@ if (os.path.isfile(dump_archive_path)):
 os.mkdir(dump_dir_path)
 
 for action, file_paths in analysis.items():
-    if action == "M" or action == "A":
+    if action == "M" or action == "A" or action == "U":
         for file_path in file_paths:
             file_dir_path = os.path.join(dump_dir_path, os.path.dirname(file_path))
             if not os.path.isdir(file_dir_path):
